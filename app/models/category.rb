@@ -15,7 +15,7 @@ class Category < ApplicationRecord
   validate :depth_less_than_max_depth
 
   def depth_less_than_max_depth
-    errors.add(:base, 'Sub-Sub-Category cannot have children.') if has_parent? && !(parent.depth < MAX_DEPTH)
+    errors.add(:base, 'Sub Sub Category cannot have children.') if has_parent? && !(parent.depth < MAX_DEPTH)
   end
 
   def self.active(limit = 50)
