@@ -19,6 +19,9 @@ gem 'simple_form'
 gem 'font-awesome-rails'
 gem 'select2-rails'
 
+# Pagination
+gem 'kaminari'
+
 # Heirarchy
 gem 'ancestry'
 
