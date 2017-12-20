@@ -66,13 +66,11 @@ ActiveRecord::Schema.define(version: 20171211134110) do
   create_table "products_categories", force: :cascade do |t|
     t.bigint "product_id"
     t.bigint "category_id"
-    t.integer "sub_sub_category_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["category_id"], name: "index_products_categories_on_category_id"
-    t.index ["product_id", "category_id", "sub_sub_category_id"], name: "index_products_categories", unique: true
+    t.index ["product_id", "category_id"], name: "index_products_categories_on_product_id_and_category_id", unique: true
     t.index ["product_id"], name: "index_products_categories_on_product_id"
-    t.index ["sub_sub_category_id"], name: "index_products_categories_on_sub_sub_category_id"
   end
 
   add_foreign_key "products_categories", "categories"
