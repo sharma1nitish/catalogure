@@ -1,0 +1,12 @@
+.product-container
+  .row
+    .col-xs-3.image
+      = fa_icon 'picture-o'
+    .col-xs-9.details
+      h4 = product.name.capitalize if product.present?
+      .spacer-xs-20
+      .description = product.description.truncate(250) if product.present?
+      .spacer-xs-10
+      .price-container
+        .span.text-inline S$
+        .span.text-inline.value = product.price_in_sgd.truncate(1).to_f if product.present?

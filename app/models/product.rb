@@ -9,22 +9,23 @@ class Product < ApplicationRecord
     query.present? ? where('name ILIKE ?', "%#{query}%") : all
   end
 
-  def self.filter_by_category(category, query = nil)
+  def self.filter_by_category_id(category_id)
+    category = Category.find(category_id)
     product_ids = ProductsCategory.unique_product_ids_by(category_id: category.leaves.map(&:id))
 
-    filter_by_product_ids(product_ids, query)
+    filter_by_product_ids(product_ids)
   end
 
-  def self.filter_by_sub_sub_category_ids(sub_sub_category_ids, query = nil)
+  def self.filter_by_sub_sub_category_ids(sub_sub_category_ids)
     product_ids = ProductsCategory.get_product_ids_by(sub_sub_category_ids)
 
-    filter_by_product_ids(product_ids, query)
+    filter_by_product_ids(product_ids)
   end
 
-  def self.filter_by_product_ids(product_ids, query = nil)
+  def self.filter_by_product_ids(product_ids)
     return none if product_ids.blank?
 
-    where(id: product_ids).filter_by_query(query)
+    where(id: product_ids)
   end
 
   private_class_method :filter_by_product_ids
