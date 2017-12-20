@@ -1,0 +1,20 @@
+.sidebar {
+  background-color: $white;
+
+  .nav-tabs {
+    border: none;
+
+    li a {
+      border: none;
+      border-radius: 0;
+      color: $black;
+      font-size: 16px;
+
+      &:hover, &:focus {
+        background-color: $white;
+        color: $yellow;
+        text-decoration: none;
+      }
+    }
+  }
+}

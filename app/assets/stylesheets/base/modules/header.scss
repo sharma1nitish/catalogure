@@ -1,0 +1,53 @@
+header {
+  background-color: $blue-dark;
+
+  .navbar {
+    border: none;
+    border-radius: 0;
+    margin-bottom: 0;
+  }
+
+  .navbar-form {
+    line-height: 75px;
+    margin-left: 60px;
+
+    &, .form-group {
+      width: 65%;
+    }
+
+    .form-control {
+      width: 100%;
+    }
+
+    input[name="query"] {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+      height: $input-height;
+    }
+
+    button[type="submit"] {
+      background-color: $yellow;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+      height: $input-height;
+      margin-top: 5px;
+    }
+  }
+}
+
+.header .navbar .navbar-brand {
+  $font-size: 35px;
+
+  height: $header-height;
+
+  a {
+    color: $white;
+    font-size: $font-size;
+    line-height: 70px;
+
+    .fa {
+      font-size: $font-size;
+    }
+  }
+}
+

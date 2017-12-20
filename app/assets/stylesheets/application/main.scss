@@ -1,0 +1,37 @@
+body {
+  background-color: $white-smoke;
+  font-size: 17px;
+
+  @media (max-width: $screen-xs-max) {
+    font-size: 14px;
+  }
+}
+
+.sidebar, .content, header {
+  position: fixed;
+}
+
+.sidebar, .content {
+  overflow: auto;
+}
+
+.sidebar {
+  @include size($sidebar-width, calc(100% - #{$header-height}));
+  @include box-shadow($box-shadow);
+
+  background-color: $white;
+  left: 0;
+  z-index: 4;
+}
+
+.content {
+  @include size(calc(100% - #{$sidebar-width}), calc(100% - #{$header-height}));
+
+  margin-left: $sidebar-width;
+  z-index: 3;
+}
+
+header {
+  width: 100%;
+  z-index: 5;
+}

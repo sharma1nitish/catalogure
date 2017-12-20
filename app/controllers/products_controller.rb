@@ -1,29 +1,19 @@
 class ProductsController < ApplicationController
-  def filter
-    query = params[:query]
-
-    if sanitized_category_ids.blank?
-      products = query.present? ? Product.with_name_like(query) : Product
+  def index
+    if params[:category_id].blank?
+      @categories = Category.active_roots
+      @products = Product.filter_by(params[:query])
     else
-      product_ids = ProductsCategory.where(category_id: sanitized_category_ids).pluck(:product_id).uniq
-      products = query.present? ? Product.with_name_like(query, product_ids) : Product.where(id: product_ids)
-    end
+      category = Category.find(params[:category_id])
 
-    render json: { products: products.order(:name), status: :ok }
+      return if !category.root? # TODO: throw error
+
+      @arranged_category_tree = category.descendants_tree
+      @products = Product.filter_by(params[:query], category.leaves.map(&:id))
+    end
   end
 
-  private
-
-  def sanitized_category_ids # Select only the deepest categories in the heirarchy and their descendants for specificity
-    return [] if params[:ids].blank?
-
-    deepest_categories = Category.deepest_categories_by_ids(params[:ids].map(&:to_i).uniq)
-
-    deepest_category_ids = deepest_categories.pluck(:id)
-    deepest_categories_descendants_ids = deepest_categories.map(&:descendant_ids).flatten
-
-    deepest_category_ids.concat(deepest_categories_descendants_ids) if deepest_categories_descendants_ids.present?
-
-    deepest_category_ids
+  def filter
+    render json: { products: Product.filter_by(params[:query], params[:category_ids]).order(:name), status: :ok }
   end
 end

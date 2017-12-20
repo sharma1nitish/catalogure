@@ -1,0 +1,16 @@
+header.header
+  nav.navbar
+    .container
+      .navbar-header
+        .navbar-brand
+          = link_to root_path do
+            = fa_icon 'amazon', class: 'element-spacer-right-10 text-inline'
+            text-inline Catalogure
+      = simple_form_for '', html: { class: 'navbar-form navbar-left' }, data: { remote: true } do |f|
+        = f.input :query, placeholder: 'Search products', label: false, required: false
+        = f.button :button, type: :submit do
+          = fa_icon 'search'
+
+
+.spacer-xs-50
+.spacer-xs-50

@@ -1,0 +1,17 @@
+ul.nav.nav-tabs.nav-stacked
+  - if defined?(@categories)
+    .spacer-md-20
+    - @categories.find_each do |category|
+      li = link_to category.name, root_path(category_id: category.id)
+  - else
+    - @arranged_category_tree.each do |sub_category, sub_sub_categories|
+      .spacer-md-20
+      strong.element-spacer-left-10 = sub_category.name
+      .spacer-md-10
+      ul.sub-category
+        - sub_sub_categories.keys.each do |sub_sub_category|
+          li
+            = check_box_tag sub_sub_category.name, sub_sub_category.id, false, class: 'category-filter'
+            span.element-spacer-left-5 = sub_sub_category.name
+
+

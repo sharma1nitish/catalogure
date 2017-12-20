@@ -1,0 +1,15 @@
+- content_for :stylesheets do
+  = stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track' => true
+
+- content_for :javascripts do
+  = javascript_include_tag 'application', 'data-turbolinks-track' => true
+
+- content_for :content do
+  = render 'layouts/header'
+  #two-columns-content
+    .sidebar
+      = render(partial: 'products/sidebar')
+    .content
+      = yield
+
+= render template: 'layouts/base'
