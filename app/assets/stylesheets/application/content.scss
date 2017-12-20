@@ -1,0 +1,38 @@
+$gap: 20px;
+
+.products-container {
+  margin: 0 $gap;
+  padding: $gap 0;
+}
+
+.product-container {
+  @include box-shadow($box-shadow);
+
+  background-color: $white;
+  height: $product-container-height;
+  margin-bottom: $gap;
+  padding: $gap;
+
+  .image .fa {
+    color: $grey-smoke;
+    font-size: 160px;
+  }
+
+  .details {
+    h4 {
+      color: $blue;
+    }
+
+    .description {
+      font-size: 16px;
+    }
+
+    .price-container {
+      color: $red;
+
+      .value {
+        font-weight: 800;
+      }
+    }
+  }
+}

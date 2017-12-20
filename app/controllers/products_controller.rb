@@ -20,7 +20,7 @@ class ProductsController < ApplicationController
       products = Product.filter_by_category(@category, params[:query])
     end
 
-    render json: { products: products.order(:name), status: :ok }
+    render json: { products: helpers.attributes_of(products.order(:name)), status: :ok }
   end
 
   def set_category
