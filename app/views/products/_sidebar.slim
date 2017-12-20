@@ -8,7 +8,7 @@ ul.nav.nav-tabs.nav-stacked
       .spacer-md-20
       strong.element-spacer-left-10 = sub_category.name
       .spacer-md-10
-      ul.sub-category
+      ul.sub-category data-category-id="#{sub_category.id}"
         - sub_sub_categories.keys.each do |sub_sub_category|
           li
             = check_box_tag sub_sub_category.name, sub_sub_category.id, false, class: 'category-filter'
