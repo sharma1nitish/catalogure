@@ -1,4 +1,19 @@
 class Product < ApplicationRecord
+  ransacker :categories,
+    formatter: proc { |category_id|
+      category = Category.find(category_id)
+      if category.childless?
+        ids = ProductsCategory.where(category_id: category_id).pluck(:product_id)
+      else
+        category_ids = category.leaves.pluck(:id)
+        ids = ProductsCategory.unique_product_ids_by(category_id: category_ids)
+      end
+
+      ids.present? ? ids : nil
+    } do |parent|
+    parent.table[:id]
+  end
+
   paginates_per 20
 
   has_many :products_categories, dependent: :destroy

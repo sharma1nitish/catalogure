@@ -28,6 +28,7 @@ gem 'ancestry'
 # Admin Dashboard
 gem 'activeadmin'
 gem 'devise'
+gem 'ransack', github: 'activerecord-hackery/ransack'
 
 # Misc
 gem 'jbuilder', '~> 2.5'
