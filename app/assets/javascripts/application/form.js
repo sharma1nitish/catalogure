@@ -81,7 +81,7 @@ $(function() {
     renderPaginator(data.current_page, data.total_pages);
   }
 
-  function renderPaginator(currentPage, pagesCount) {debugger
+  function renderPaginator(currentPage, pagesCount) {
     var totalPages = pagesCount || Number($paginator.attr('data-total-pages'));
 
     $paginator.twbsPagination('destroy')
