@@ -20,6 +20,10 @@ class ProductsCategory < ApplicationRecord
     where(query_hash).pluck(:product_id).uniq
   end
 
+  def self.distinct_category_ids
+    distinct.pluck(:category_id)
+  end
+
   def product_belongs_to_deepest_category
     errors.add(:base, 'Product must belong to the deepest category') if category.depth != Category::MAX_DEPTH
   end

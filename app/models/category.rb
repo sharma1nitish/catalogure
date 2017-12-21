@@ -15,13 +15,17 @@ class Category < ApplicationRecord
   validate :depth_less_than_max_depth
 
   def self.active_roots
-    distinct_category_ids = ProductsCategory.distinct.pluck(:category_id)
-    root_ids = where(id: distinct_category_ids).map(&:root_id).uniq
+    root_ids = where(id: ProductsCategory.distinct_category_ids).map(&:root_id).uniq
     where(id: root_ids)
   end
 
-  def descendants_tree
-    subtree.arrange.values.first
+  def active_descendants_tree
+    categories_hash = subtree.arrange.values.first.map do |sub_category, sub_sub_categories_hash|
+      sub_sub_categories_hash.select! { |category, value| category.products_categories.present? }
+      [sub_category, sub_sub_categories_hash]
+    end
+
+    Hash[categories_hash]
   end
 
   def leaves

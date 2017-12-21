@@ -2,5 +2,8 @@
   - @products.find_each do |product|
     = render partial: 'product_container', locals: { product: product }
 
-.hidden
+- if @total_pages > 1
+  ul#paginator.pagination-sm data-total-pages="#{@total_pages}"
+
+.product-container-clone.hidden
   = render partial: 'product_container', locals: { product: nil }

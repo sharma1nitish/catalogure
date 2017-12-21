@@ -1,16 +1,21 @@
 class ProductsController < ApplicationController
+  before_action :set_page
+
   def index
     if params[:category_id].blank?
       @categories = Category.active_roots
-      @products = Product.filter_by_query(params[:query]).order(:name)
+      products = Product
     else
       category = Category.find(params[:category_id])
 
-      return if !category.root? # TODO: throw error
+      redirect_to root_path && return if !category.root?
 
-      @arranged_category_tree = category.descendants_tree
-      @products = Product.filter_by_category_id(params[:category_id]).filter_by_query(params[:query]).order(:name)
+      @arranged_category_tree = category.active_descendants_tree
+      products = Product.filter_by_category_id(params[:category_id])
     end
+
+    @products = products.filter_by_query(params[:query]).order(:name).page(@page)
+    @total_pages = @products.total_pages
   end
 
   def filter
@@ -22,6 +27,14 @@ class ProductsController < ApplicationController
       products = Product
     end
 
-    render json: { products: helpers.attributes_of(products.filter_by_query(params[:query]).order(:name)), status: :ok }
+    products = products.filter_by_query(params[:query]).order(:name).page(@page)
+
+    render json: { products: helpers.attributes_of(products), current_page: @page, total_pages: products.total_pages, status: :ok }
+  end
+
+  private
+
+  def set_page
+    @page = params[:page] || 1
   end
 end

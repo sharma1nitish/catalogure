@@ -1,17 +1,21 @@
 $(function() {
   var $form = $('form');
+  var $query = $('input#query');
   var $subCategories = $('.sidebar .sub-category');
   var $filters = $('.sidebar input:checkbox');
   var $productsContainer = $('.products-container');
+  var $paginator = $('#paginator');
+
+  renderPaginator();
 
   $filters.on('change', function() {
-    submitFilters($('input#query').val(), getSelectedSubSubCategoryIds());
+    submitFilters($query.val(), getSelectedSubSubCategoryIds());
   });
 
   $form.on('submit', function (event) {
     event.preventDefault();
 
-    submitFilters($('input#query').val(), getSelectedSubSubCategoryIds());
+    submitFilters($query.val(), getSelectedSubSubCategoryIds());
   });
 
   function getSelectedSubSubCategoryIds() {
@@ -26,17 +30,18 @@ $(function() {
     return selectedCategoryIds;
   }
 
-  function submitFilters(query, subSubCategoryIds) {
+  function submitFilters(query, subSubCategoryIds, page) {
     return $.ajax({
       type: 'GET',
       url: '/products/filter',
       data: {
         query: query,
         sub_sub_category_ids: subSubCategoryIds,
-        category_id: getCategoryId()
+        category_id: getCategoryId(),
+        page: page
       }
     }).done(function(data) {
-      refreshProducts(data.products);
+      refreshProducts(data);
 
       jQuery.Deferred().done.apply(this, arguments);
     }).fail(function (data) {
@@ -55,7 +60,7 @@ $(function() {
   }
 
   function createProductContainer(data) {
-    var $productContainer = $('.hidden .product-container').clone();
+    var $productContainer = $('.product-container-clone .product-container').clone();
 
     $productContainer.find('h4').html(data.name);
     $productContainer.find('.description').html(data.description);
@@ -67,8 +72,30 @@ $(function() {
   function refreshProducts(data) {
     $productsContainer.empty();
 
-    $.each(data, function(index, productData) {
+    $paginator.attr('data-total-pages', data.total_pages);
+
+    $.each(data.products, function(index, productData) {
       $productsContainer.append(createProductContainer(productData));
+    });
+
+    renderPaginator(data.current_page, data.total_pages);
+  }
+
+  function renderPaginator(currentPage, pagesCount) {debugger
+    var totalPages = pagesCount || Number($paginator.attr('data-total-pages'));
+
+    $paginator.twbsPagination('destroy')
+
+    if (!totalPages || totalPages <= 1) return;
+
+    $paginator.twbsPagination({
+        totalPages: totalPages,
+        visiblePages: totalPages / 5,
+        startPage: Number(currentPage) || 1,
+        initiateStartPageClick: false,
+        onPageClick: function (event, page) {
+          submitFilters($query.val(), getSelectedSubSubCategoryIds(), page);
+        }
     });
   }
 });

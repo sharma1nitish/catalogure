@@ -1,5 +1,10 @@
 $gap: 20px;
 
+#paginator {
+  margin: 0;
+  margin-left: $gap;
+}
+
 .products-container {
   margin: 0 $gap;
   padding: $gap 0;

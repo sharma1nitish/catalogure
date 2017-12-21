@@ -1,8 +1,11 @@
 class Product < ApplicationRecord
+  paginates_per 20
+
   has_many :products_categories, dependent: :destroy
   has_many :categories, through: :products_categories
 
   validates :name, presence: true
+  validates :description, presence: true
   validates :price_in_sgd, numericality: { greater_than: 0 }
 
   def self.filter_by_query(query)
