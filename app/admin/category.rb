@@ -3,6 +3,24 @@ ActiveAdmin.register Category do
 
   filter :name, as: :string
 
+  show do
+    attributes_table do
+      row :id
+      row :name
+      row(:ancestry) { |category| category.ancestry.presence || 'Root Category' }
+    end
+
+    panel 'Category Tree' do
+      root_category = category.root? ? category : category.root
+
+      table_for root_category.subtree do |category|
+        column :id
+        column(:name) { |category| link_to category.name, admin_category_path(category) }
+        column(:ancestry) { |category| category.ancestry.presence || 'Root Category' }
+      end
+    end
+  end
+
   form do |f|
     if f.object.new_record? || !f.object.is_root?
       f.inputs 'Parent Category', for: [:parent_category, f.object.parent || Category.new] do |ff|

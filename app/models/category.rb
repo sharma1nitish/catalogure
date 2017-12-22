@@ -19,6 +19,10 @@ class Category < ApplicationRecord
     where(id: root_ids)
   end
 
+  def self.get_self_and_ancestors_by(leaf_categories)
+    where(id: leaf_categories.map(&:path_ids).flatten.uniq)
+  end
+
   def active_descendants_tree
     categories_hash = subtree.arrange.values.first.map do |sub_category, sub_sub_categories_hash|
       sub_sub_categories_hash.select! { |category, value| category.products_categories.present? }
@@ -29,7 +33,7 @@ class Category < ApplicationRecord
   end
 
   def leaves
-    subtree.select(&:is_childless?)
+    subtree.select(&:childless?)
   end
 
   def depth_less_than_max_depth
