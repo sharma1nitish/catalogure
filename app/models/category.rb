@@ -23,13 +23,28 @@ class Category < ApplicationRecord
     where(id: leaf_categories.map(&:path_ids).flatten.uniq)
   end
 
+  def self.ordered_subtree(category)
+    arranged_subtree = category.is_a?(Category) ? category.subtree.arrange : category
+    arranged_subtree.each_with_object([]) do |(key,value), keys|
+      keys << key
+      keys.concat(ordered_subtree(value))
+    end
+  end
+
+  def self.all_ordered_subtrees
+    roots.map do |root_category|
+      ordered_subtree(root_category)
+    end.flatten
+  end
+
   def active_descendants_tree
     categories_hash = subtree.arrange.values.first.map do |sub_category, sub_sub_categories_hash|
       sub_sub_categories_hash.select! { |category, value| category.products_categories.present? }
-      [sub_category, sub_sub_categories_hash]
+
+      [sub_category, sub_sub_categories_hash] if sub_sub_categories_hash.present?
     end
 
-    Hash[categories_hash]
+    Hash[categories_hash.compact]
   end
 
   def leaves

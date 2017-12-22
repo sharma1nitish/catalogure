@@ -32,7 +32,7 @@ ActiveAdmin.register Product do
 
   form do |f|
     f.inputs 'Product Form Details' do
-      f.input :category_ids, as: :select2_multiple, collection: Category.roots.map(&:subtree).flatten.pluck(:name, :id)
+      f.input :category_ids, as: :select2_multiple, collection: Category.all_ordered_subtrees.pluck(:name, :id)
       f.input :name
       f.input :description
       f.input :price_in_sgd
