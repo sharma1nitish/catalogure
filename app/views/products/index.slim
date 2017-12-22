@@ -1,5 +1,5 @@
 .products-container
-  - @products.find_each do |product|
+  - @products.each do |product|
     = render partial: 'product_container', locals: { product: product }
 
 - if @total_pages > 1

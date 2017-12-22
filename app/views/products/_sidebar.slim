@@ -1,7 +1,7 @@
 ul.nav.nav-tabs.nav-stacked
   - if defined?(@categories)
     .spacer-xs-20
-    - @categories.find_each do |category|
+    - @categories.each do |category|
       li = link_to category.name.capitalize, root_path(category_id: category.id)
   - else
     - @arranged_category_tree.each do |sub_category, sub_sub_categories|

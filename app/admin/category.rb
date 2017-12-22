@@ -22,16 +22,18 @@ ActiveAdmin.register Category do
   end
 
   form do |f|
-    if f.object.new_record? || !f.object.is_root?
+    if params[:action] == "edit"
+      f.inputs 'Category Form Details' do
+        f.input :name
+      end
+    else
       f.inputs 'Parent Category', for: [:parent_category, f.object.parent || Category.new] do |ff|
         ff.input :name
       end
-    end
 
-    f.inputs 'Category Form Details' do
-      f.input :name
+      f.inputs 'Category Form Details' do
+        f.input :name
 
-      if f.object.new_record? || f.object.depth < Category::MAX_DEPTH
         f.has_many :sub_categories do |ff|
           ff.input :name
         end
@@ -43,7 +45,7 @@ ActiveAdmin.register Category do
 
   controller do
     def create
-      category_params = params.require(:category).permit(:name, parent_category_attributes: [:id, :_destroy, :name], sub_categories_attributes: [:id, :name, :_destroy])
+      category_params = params.require(:category).permit(:name, parent_category_attributes: [:id, :name], sub_categories_attributes: [:id, :name])
 
       parent_params = category_params.delete(:parent_category_attributes)
       children_params = category_params.delete(:sub_categories_attributes).values
@@ -58,9 +60,10 @@ ActiveAdmin.register Category do
       redirect_to admin_categories_path
     end
 
-    def edit
-      @category = Category.find(params[:id])
-      @category.sub_categories = @category.children
+    def destroy
+      Category.find(params[:id]).subtree.destroy_all
+
+      redirect_to admin_categories_path
     end
   end
 end
