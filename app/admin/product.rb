@@ -45,15 +45,24 @@ ActiveAdmin.register Product do
     before_action :set_product_params, only: [:create, :update]
 
     def create
-      product = Product.create(@product_params)
-      redirect_to admin_product_path(product)
+      @product = Product.create(@product_params)
+
+      if @product.errors.any?
+        render :new
+      else
+        redirect_to admin_product_path(@product)
+      end
     end
 
     def update
-      product = Product.find(params[:id])
-      product.update_attributes(@product_params)
+      @product = Product.find(params[:id])
+      @product.update_attributes(@product_params)
 
-      redirect_to admin_product_path(product)
+      if @product.errors.any?
+        render :edit
+      else
+        redirect_to admin_product_path(@product)
+      end
     end
 
     private

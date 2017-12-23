@@ -15,7 +15,7 @@ class Product < ApplicationRecord
 
   before_validation :sanitize_category_ids
 
-  validates :category_ids, presence: true
+  validates :category_ids, presence: { message: 'Product must belong to deepest category' }
   validates :name, presence: true
   validates :description, presence: true
   validates :price_in_sgd, presence: true, numericality: { greater_than_or_equal_to: 0.01 }

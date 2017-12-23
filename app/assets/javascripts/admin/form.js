@@ -1,9 +1,6 @@
 $(function() {
-  $('#new_product select').select2({
+  $('#new_product select, #edit_product select').select2({
     placeholder: 'Select categories',
-    width: '80%',
-    formatResult: function(item) {
-      debugger
-    }
+    width: '80%'
   });
 });
