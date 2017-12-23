@@ -19,9 +19,7 @@ ActiveAdmin.register Category do
     end
 
     panel 'Category Tree' do
-      root_category = category.root? ? category : category.root
-
-      table_for Category.ordered_subtree(root_category) do |category|
+      table_for Category.ordered_subtree(category) do |category|
         column :id
         column(:name) { |category| link_to category.name, admin_category_path(category) }
         column(:ancestry) { |category| category.ancestry.presence || 'Root Category' }

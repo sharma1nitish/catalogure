@@ -8,7 +8,7 @@ AdminUser.create!(email: 'admin@catalogure.com', password: 'qweqweqwe', password
 
     1.upto(3) do |k|
       sub_sub_category = sub_category.children.create!(name: "sub_sub_category #{i}.#{j}.#{k}")
-      Product.create!(category_ids: [sub_sub_category.id], name: "product #{i}.#{j}.#{k}", description: FFaker::Lorem.paragraph(sentence_count = 8), price_in_sgd: rand(1..100)) if k.even?
+      Product.create!(categories: [sub_sub_category], name: "product #{i}.#{j}.#{k}", description: FFaker::Lorem.paragraph(sentence_count = 8), price_in_sgd: rand(1..100)) if k.even?
     end
   end
 end

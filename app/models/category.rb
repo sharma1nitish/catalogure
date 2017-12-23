@@ -19,15 +19,15 @@ class Category < ApplicationRecord
     where(id: root_ids)
   end
 
-  def self.get_self_and_ancestors_by(leaf_categories)
-    where(id: leaf_categories.map(&:path_ids).flatten.uniq)
+  def self.get_self_and_ancestors_by(categories)
+    where(id: categories.map(&:path_ids).flatten.uniq)
   end
 
   def self.ordered_subtree(category)
-    arranged_subtree = category.is_a?(Category) ? category.subtree.arrange : category
+    arranged_subtree = category.is_a?(Category) ? category.root.subtree.arrange : category
     arranged_subtree.each_with_object([]) do |(key,value), keys|
       keys << key
-      keys.concat(ordered_subtree(value))
+      keys.concat(ordered_subtree(value)) # value is not a category object after first recursion
     end
   end
 
@@ -37,7 +37,7 @@ class Category < ApplicationRecord
     end.flatten
   end
 
-  def active_descendants_tree
+  def active_descendants_tree # To get categories which have products
     categories_hash = subtree.arrange.values.first.map do |sub_category, sub_sub_categories_hash|
       sub_sub_categories_hash.select! { |category, value| category.products_categories.present? }
 
