@@ -3,7 +3,7 @@
     .col-xs-3.image
       = fa_icon 'picture-o'
     .col-xs-9.details
-      h4 = product.name.capitalize if product.present?
+      h4 = product.name if product.present?
       .spacer-xs-20
       .description = product.description.truncate(250) if product.present?
       .spacer-xs-10
