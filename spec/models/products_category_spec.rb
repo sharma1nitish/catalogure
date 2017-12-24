@@ -61,7 +61,7 @@ RSpec.describe ProductsCategory, type: :model do
     end
 
     it 'should return the product_ids associated with the category_id' do
-      expect(ProductsCategory.unique_product_ids_by(category_id: @sub_sub_category1.id)).to eq [@product2.id, @product1.id]
+      expect(ProductsCategory.unique_product_ids_by(category_id: @sub_sub_category1.id).sort).to eq [@product1.id, @product2.id].sort
       expect(ProductsCategory.unique_product_ids_by(category_id: @sub_sub_category2.id)).to eq [@product3.id]
       expect(ProductsCategory.unique_product_ids_by(category_id: @sub_sub_category3.id)).to eq [@product3.id]
     end
