@@ -52,7 +52,6 @@ ActiveRecord::Schema.define(version: 20171211134110) do
     t.datetime "updated_at", null: false
     t.string "ancestry"
     t.index ["ancestry"], name: "index_categories_on_ancestry"
-    t.index ["name"], name: "index_categories_on_name", unique: true
   end
 
   create_table "products", force: :cascade do |t|

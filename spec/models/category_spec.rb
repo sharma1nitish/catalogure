@@ -1,101 +1,125 @@
 require 'rails_helper'
 
 RSpec.describe Category, type: :model do
-  it 'is valid with valid attributes' do
-    category = Category.create(name: 'category')
-    sub_category = category.children.create(name: 'sub_category')
-    sub_sub_category = sub_category.children.create(name: 'sub_sub_category')
-
-    invalid_child_category = sub_sub_category.children.create(name: 'invalid_category')
-    nameless_category = Category.create(name: '')
-
-    expect(nameless_category).to_not be_valid
-    expect(invalid_child_category).to_not be_valid
-
-    expect(category).to be_valid
-    expect(sub_category).to be_valid
-    expect(sub_sub_category).to be_valid
+  before(:all) do
+    @root_category = Category.create(name: 'Books')
+    @sub_category = @root_category.children.create(name: 'Authors')
+    @sub_sub_category = @sub_category.children.create(name: 'Stephen King')
   end
 
-  it 'returns array of root categories for products belonging sub sub categories' do
-    active_roots = []
+  def create_category_tree(root_category_name = nil, sub_category_name = nil, sub_sub_category_name = nil)
+    root_category = Category.create(name: root_category_name || 'Clothing')
+    sub_category = root_category.children.create(name: sub_category_name || 'Material')
+    sub_sub_category = sub_category.children.create(name: sub_sub_category_name || 'Cotton')
 
-    1.upto(4) do |i|
-      category = Category.create(name: "category #{i}")
-      sub_category = category.children.create(name: "sub_category #{i}.#{i}")
-      sub_sub_category = sub_category.children.create(name: "sub_sub_category #{i}.#{i}.#{i}")
+    { root_category: root_category, sub_category: sub_category, sub_sub_category: sub_sub_category }
+  end
 
-      if i.even?
-        Product.create!(categories: [sub_sub_category], name: "product #{i}.#{i}.#{i}", description: FFaker::Lorem.paragraph(sentence_count = 8), price_in_sgd: rand(1..100))
-        active_roots << category
-      end
+  describe 'Category.create' do
+
+    it 'should have a name' do
+      expect(@root_category.name).to eq 'Books'
+      expect(@sub_category.name).to eq 'Authors'
+      expect(@sub_sub_category.name).to eq 'Stephen King'
     end
 
-    expect(Category.active_roots).to eq active_roots
-  end
-
-  it 'returns an array of self and ancestors for an array of categories' do
-    root_categories = []
-    sub_categories = []
-    leaf_categories = []
-
-    1.upto(2) do |i|
-      category = Category.create(name: "category #{i}")
-      sub_category = category.children.create(name: "sub_category #{i}.#{i}")
-      leaf_categories << sub_category.children.create(name: "sub_sub_category #{i}.#{i}.#{i}")
-      sub_categories << sub_category
-      root_categories << category
+    it 'should not exceed max depth' do
+      category = @sub_sub_category.children.create(name: 'Invalid')
+      category.valid?
+      expect(category.errors[:base]).to include('Sub Sub Category cannot have children')
     end
 
-    expect(Category.get_self_and_ancestors_by(leaf_categories)).to eq Category.all.to_a
-    expect(Category.get_self_and_ancestors_by(sub_categories)).to eq [root_categories, sub_categories].transpose.flatten
-    expect(Category.get_self_and_ancestors_by(root_categories)).to eq root_categories
-  end
+    it 'should be valid' do
+      expect(@root_category).to be_valid
+      expect(@sub_category).to be_valid
+      expect(@sub_sub_category).to be_valid
+    end
 
-  it 'returns an heirarchically ordered array of the subtree to which the category belongs' do
-    category = Category.create(name: "category")
-    sub_category = category.children.create(name: "sub_category")
-    sub_sub_category = sub_category.children.create(name: "sub_sub_category")
-    ordered_subtree = [category, sub_category, sub_sub_category]
+    it 'should not be valid if name is blank' do
+      nameless_category = Category.create(name: '')
 
-    ordered_subtree.each do |category|
-      expect(Category.ordered_subtree(category)).to eq ordered_subtree
+      expect(nameless_category.name).to be_blank
+      expect(nameless_category).to_not be_valid
     end
   end
 
-  it 'returns a tree of active descendant categories as a nested hash for a given category' do
-    root_categories = []
+  describe 'Category.active_roots' do
 
-    1.upto(2) do |i|
-      category = Category.create(name: "category #{i}")
-      sub_category = category.children.create(name: "sub_category #{i}.#{i}")
-      sub_sub_category = sub_category.children.create(name: "sub_sub_category #{i}.#{i}.#{i}")
-
-      root_categories << category
-
-      if i.even?
-        Product.create(categories: [sub_sub_category], name: "product #{i}.#{i}.#{i}", description: FFaker::Lorem.paragraph(sentence_count = 8), price_in_sgd: rand(1..100))
-      end
+    it 'should return an empty array if no products exist' do
+      expect(Category.active_roots).to be_blank
     end
 
-    last_root_category = root_categories.last
+    it 'should return all top level categories for existing products' do
+      categories = create_category_tree
 
-    expect(root_categories.first.active_descendants_tree).to eq({})
-    expect(last_root_category.active_descendants_tree).to eq({ last_root_category.children.first => { last_root_category.leaves.first => {}}})
+      Product.create!(categories: [@sub_sub_category], name: 'The Shining', description: FFaker::Lorem.paragraph(sentence_count = 8), price_in_sgd: rand(1..100))
+      Product.create!(categories: [categories[:sub_sub_category]], name: 'T Shirt', description: FFaker::Lorem.paragraph(sentence_count = 8), price_in_sgd: rand(1..100))
+
+      expect(Category.active_roots).to eq [@root_category, categories[:root_category]]
+    end
   end
 
-  it 'returns an array of deepest categories in the heirarchy for a given category' do
-    leaves = []
-
-    category = Category.create(name: "category")
-    sub_category = category.children.create(name: "sub_category")
-
-    1.upto(2) do |i|
-      leaves << sub_category.children.create(name: "sub_sub_category #{i}")
+  describe 'Category.get_self_and_ancestors_by' do
+    before(:all) do
+      @categories = create_category_tree
     end
 
-    expect(category.leaves).to eq leaves
-    expect(sub_category.leaves).to eq leaves
-    leaves.each { |leaf_category| expect(leaf_category.leaves).to eq [leaf_category] }
+    it 'should return self as an array if it is a root category' do
+      expect(Category.get_self_and_ancestors_by([@root_category])).to eq [@root_category]
+    end
+
+    it 'should return an array of self and root_categories for an array of sub categories' do
+      self_and_ancestors = Category.get_self_and_ancestors_by([@sub_category, @categories[:sub_category]])
+      expected_categories = [@root_category, @sub_category].concat([@categories[:root_category], @categories[:sub_category]])
+
+      expect(self_and_ancestors).to eq expected_categories
+    end
+
+    it 'should return an array of self and ancestors for an array of sub sub categories' do
+      self_and_ancestors = Category.get_self_and_ancestors_by([@sub_sub_category, @categories[:sub_sub_category]])
+      expected_categories = [@root_category, @sub_category, @sub_sub_category].concat(@categories.values)
+
+      expect(self_and_ancestors).to eq expected_categories
+    end
+  end
+
+  describe 'Category.ordered_subtree' do
+    it 'should return a heirarchically ordered array of the subtree to which the category belongs' do
+      expect(Category.ordered_subtree(@root_category)).to eq [@root_category, @sub_category, @sub_sub_category]
+      expect(Category.ordered_subtree(@sub_category)).to eq [@root_category, @sub_category, @sub_sub_category]
+      expect(Category.ordered_subtree(@sub_sub_category)).to eq [@root_category, @sub_category, @sub_sub_category]
+    end
+  end
+
+  describe 'Category#active_descendants_tree' do
+
+    it 'should return a empty hash if category is not root' do
+      expect(@sub_category.active_descendants_tree).to be_blank
+      expect(@sub_sub_category.active_descendants_tree).to be_blank
+    end
+
+    it 'should return a empty hash if descendant(s) of the root category do not have an existing product' do
+      expect(@root_category.active_descendants_tree).to be_blank
+    end
+
+    it 'should return a tree of categories as a nested hash for a root category, descendant(s) of whose have an existing product' do
+      Product.create!(categories: [@sub_sub_category], name: 'The Shining', description: FFaker::Lorem.paragraph(sentence_count = 8), price_in_sgd: rand(1..100))
+
+      expect(@root_category.active_descendants_tree).to eq({ @sub_category => { @sub_sub_category => {}}})
+    end
+  end
+
+  describe 'Category#leaves' do
+
+    it 'should return self for a given sub sub category' do
+      expect(@sub_sub_category.leaves).to eq [@sub_sub_category]
+    end
+
+    it 'should return all sub sub categories for a given parent category' do
+      categories = create_category_tree
+
+      expect(@root_category.leaves).to eq [@sub_sub_category]
+      expect(categories[:root_category].leaves).to eq [categories[:sub_sub_category]]
+    end
   end
 end

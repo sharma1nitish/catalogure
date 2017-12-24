@@ -5,11 +5,10 @@ class ProductsCategory < ApplicationRecord
   validates :category_id, presence: true, uniqueness: { scope: :product_id, message: 'already has this product' }
   validate :product_belongs_to_deepest_category
 
-  def self.get_product_ids_by(sub_sub_category_ids_hash)
-    category_ids_collection = sub_sub_category_ids_hash.values
-    product_ids = unique_product_ids_by(category_id: category_ids_collection.first)
+  def self.get_product_ids_by(sub_sub_category_ids)
+    product_ids = unique_product_ids_by(category_id: sub_sub_category_ids.first)
 
-    category_ids_collection[1..-1].each do |categories_ids|
+    sub_sub_category_ids[1..-1].each do |categories_ids|
       product_ids = unique_product_ids_by(category_id: categories_ids, product_id: product_ids)
     end
 

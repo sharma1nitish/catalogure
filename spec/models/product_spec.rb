@@ -62,4 +62,25 @@ RSpec.describe Product, type: :model do
     expect(Product.filter_by_category_id(sub_categories.last.id)).to eq [product]
     expect(Product.filter_by_category_id(sub_sub_categories.last.id)).to eq [product]
   end
+
+  it 'returns products belonging a given leaf categories' do
+    category = Category.create(name: 'category')
+    sub_categories = []
+    sub_sub_categories = []
+
+    1.upto(2) do |i|
+      sub_category = category.children.create(name: "sub_category #{i}.#{i}")
+      sub_categories << sub_category
+      sub_sub_categories << sub_category.children.create(name: "sub_sub_category #{i}.#{i}.#{i}")
+    end
+
+    product = Product.create(categories: [sub_sub_categories.last], name: 'product', description: FFaker::Lorem.paragraph(sentence_count = 8), price_in_sgd: rand(1..100))
+
+    expect(Product.filter_by_sub_sub_category_ids(sub_categories.first.id)).to eq []
+    expect(Product.filter_by_sub_sub_category_ids(sub_sub_categories.first.id)).to eq []
+
+    expect(Product.filter_by_sub_sub_category_ids(category.id)).to eq [product]
+    expect(Product.filter_by_sub_sub_category_ids(sub_categories.last.id)).to eq [product]
+    expect(Product.filter_by_sub_sub_category_ids(sub_sub_categories.last.id)).to eq [product]
+  end
 end

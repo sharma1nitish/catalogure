@@ -38,6 +38,8 @@ class Category < ApplicationRecord
   end
 
   def active_descendants_tree # To get categories which have products
+    return {} if !root?
+
     categories_hash = subtree.arrange.values.first.map do |sub_category, sub_sub_categories_hash|
       sub_sub_categories_hash.select! { |category, value| category.products_categories.present? }
 
@@ -52,6 +54,6 @@ class Category < ApplicationRecord
   end
 
   def depth_less_than_max_depth
-    errors.add(:base, 'Sub Sub Category cannot have children.') if has_parent? && !(parent.depth < MAX_DEPTH)
+    errors.add(:base, 'Sub Sub Category cannot have children') if has_parent? && !(parent.depth < MAX_DEPTH)
   end
 end
