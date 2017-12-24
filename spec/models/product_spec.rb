@@ -1,86 +1,161 @@
 require 'rails_helper'
 
 RSpec.describe Product, type: :model do
-  it 'is valid with valid attributes' do
-    category = Category.create(name: 'category')
-    sub_category = category.children.create(name: 'sub_category')
-    sub_sub_category = sub_category.children.create(name: 'sub_sub_category')
+  before(:all) do
+    @root_category = Category.create(name: 'Books')
 
-    name = 'product'
-    description = FFaker::Lorem.paragraph(sentence_count = 8)
-    price = rand(1..100)
+    @sub_category1 = @root_category.children.create(name: 'Authors')
+    @sub_sub_category1 = @sub_category1.children.create(name: 'Stephen King')
+    @sub_sub_category2 = @sub_category1.children.create(name: 'J. K. Rowling')
 
-    product_without_categories = Product.create(categories: [], name: name, description: description, price_in_sgd: price)
-    product_with_invalid_categories = Product.create(categories: [category, sub_category], name: name, description: description, price_in_sgd: price)
-    nameless_product = Product.create(categories: [sub_sub_category], name: '', description: description, price_in_sgd: price)
-    descriptionless_product = Product.create(categories: [sub_sub_category], name: name, description: '', price_in_sgd: price)
-    product_with_invalid_price = Product.create(categories: [sub_sub_category], name: name, description: '', price_in_sgd: 0)
+    @sub_category2 = @root_category.children.create(name: 'Genre')
+    @sub_sub_category3 = @sub_category2.children.create(name: 'Fantasy')
 
-    valid_product = Product.create(categories: [sub_sub_category], name: name, description: description, price_in_sgd: price)
+    categories = [@root_category, @sub_category1, @sub_sub_category1]
 
-    expect(product_without_categories).to_not be_valid
-    expect(product_with_invalid_categories).to_not be_valid
-    expect(nameless_product).to_not be_valid
-    expect(descriptionless_product).to_not be_valid
-    expect(product_with_invalid_price).to_not be_valid
+    @product1 = Product.create(
+      categories: categories,
+      name: 'The Shining',
+      description: 'A horror fiction',
+      price_in_sgd: 1
+    )
 
-    expect(valid_product).to be_valid
+    @product2 = Product.create(
+      categories: categories,
+      name: 'The Mist',
+      description: 'A horror fiction',
+      price_in_sgd: 1
+    )
+
+
+    @product3 = Product.create(
+      categories: [@sub_sub_category2, @sub_sub_category3],
+      name: 'Harry Potter and the Prisoner of Azkaban',
+      description: 'A HP book',
+      price_in_sgd: 1
+    )
   end
 
-  it 'returns products with name containing query string' do
-    category = Category.create(name: 'category')
-    sub_category = category.children.create(name: 'sub_category')
-    sub_sub_category = sub_category.children.create(name: 'sub_sub_category')
+  describe 'Product.create' do
 
-    description = FFaker::Lorem.paragraph(sentence_count = 8)
-    price = rand(1..100)
-
-    product_1 = Product.create(categories: [sub_sub_category], name: 'GTA San Andreas', description: description, price_in_sgd: price)
-    product_2 = Product.create(categories: [sub_sub_category], name: 'GTA Vice City', description: description, price_in_sgd: price)
-    product_3 = Product.create(categories: [sub_sub_category], name: 'Need for Speed', description: description, price_in_sgd: price)
-
-    expect(Product.filter_by_query('GTA')).to eq [product_1, product_2]
-  end
-
-  it 'returns products belonging a given category' do
-    category = Category.create(name: 'category')
-    sub_categories = []
-    sub_sub_categories = []
-
-    1.upto(2) do |i|
-      sub_category = category.children.create(name: "sub_category #{i}.#{i}")
-      sub_categories << sub_category
-      sub_sub_categories << sub_category.children.create(name: "sub_sub_category #{i}.#{i}.#{i}")
+    it 'should belong to atleast 1 sub sub category' do
+      expect(@product1.categories).to eq [@sub_sub_category1]
     end
 
-    product = Product.create(categories: [sub_sub_categories.last], name: 'product', description: FFaker::Lorem.paragraph(sentence_count = 8), price_in_sgd: rand(1..100))
-
-    expect(Product.filter_by_category_id(sub_categories.first.id)).to eq []
-    expect(Product.filter_by_category_id(sub_sub_categories.first.id)).to eq []
-
-    expect(Product.filter_by_category_id(category.id)).to eq [product]
-    expect(Product.filter_by_category_id(sub_categories.last.id)).to eq [product]
-    expect(Product.filter_by_category_id(sub_sub_categories.last.id)).to eq [product]
-  end
-
-  it 'returns products belonging a given leaf categories' do
-    category = Category.create(name: 'category')
-    sub_categories = []
-    sub_sub_categories = []
-
-    1.upto(2) do |i|
-      sub_category = category.children.create(name: "sub_category #{i}.#{i}")
-      sub_categories << sub_category
-      sub_sub_categories << sub_category.children.create(name: "sub_sub_category #{i}.#{i}.#{i}")
+    it 'should have a name' do
+      expect(@product1.name).to eq 'The Shining'
     end
 
-    product = Product.create(categories: [sub_sub_categories.last], name: 'product', description: FFaker::Lorem.paragraph(sentence_count = 8), price_in_sgd: rand(1..100))
+    it 'should have a description' do
+      expect(@product1.description).to eq 'A horror fiction'
+    end
 
-    expect(Product.filter_by_sub_sub_category_ids(sub_categories.first.id)).to eq []
-    expect(Product.filter_by_sub_sub_category_ids(sub_sub_categories.first.id)).to eq []
+    it 'should have a price' do
+      expect(@product1.price_in_sgd).to eq 1
+    end
 
-    expect(Product.filter_by_sub_sub_category_ids(category.id)).to eq [product]
-    expect(Product.filter_by_sub_sub_category_ids(sub_categories.last.id)).to eq [product]
-    expect(Product.filter_by_sub_sub_category_ids(sub_sub_categories.last.id)).to eq [product]
+    it 'should be valid' do
+      expect(@product1).to be_valid
+    end
+
+    it 'should not be valid if categories does not contain a sub sub category' do
+      product = Product.new(
+        name: 'The Shining',
+        description: 'A horror fiction',
+        price_in_sgd: 1
+      )
+
+      product.categories = [@root_category, @sub_category1]
+      product.save
+      expect(product).to_not be_valid
+
+      product.categories = [@root_category]
+      product.save
+      expect(product).to_not be_valid
+
+      product.categories = [@sub_category1]
+      product.save
+      expect(product).to_not be_valid
+    end
+
+    it 'should not be valid if name is blank' do
+      product = Product.create(
+        categories: [@root_category, @sub_category1, @sub_sub_category1],
+        name: '',
+        description: 'A horror fiction',
+        price_in_sgd: 1
+      )
+
+      expect(product.name).to be_blank
+      expect(product).to_not be_valid
+    end
+
+    it 'should not be valid if description is blank' do
+      product = Product.create(
+        categories: [@root_category, @sub_category1, @sub_sub_category1],
+        name: 'The Shining',
+        description: '',
+        price_in_sgd: 1
+      )
+
+      expect(product.description).to be_blank
+      expect(product).to_not be_valid
+    end
+
+    it 'should not be valid if price is invalid' do
+      product = Product.create(
+        categories: [@root_category, @sub_category1, @sub_sub_category1],
+        name: 'The Shining',
+        description: 'A horror fiction',
+        price_in_sgd: 0
+      )
+
+      expect(product).to_not be_valid
+    end
+  end
+
+  describe 'Product.filter_by_query' do
+
+    it 'should return all products if query string is blank' do
+      expect(Product.filter_by_query('')).to eq Product.all
+    end
+
+    it 'should return products with name containing the query string' do
+      expect(Product.filter_by_query('The')).to eq [@product1, @product2, @product3]
+      expect(Product.filter_by_query('Shining')).to eq [@product1]
+      expect(Product.filter_by_query('Harry')).to eq [@product3]
+    end
+  end
+
+  describe 'Product.filter_by_category_id' do
+
+    it 'should return an empty array if category does not exist' do
+      expect(Product.filter_by_category_id(nil)).to be_blank
+    end
+
+    it 'should return products belonging a given category or its descendants' do
+      root_category = Category.create(name: 'Clothing')
+      sub_category = root_category.children.create(name: 'Material')
+      sub_sub_category = sub_category.children.create(name: 'Cotton')
+
+      expect(Product.filter_by_category_id(root_category.id)).to be_blank
+      expect(Product.filter_by_category_id(sub_category.id)).to be_blank
+      expect(Product.filter_by_category_id(sub_sub_category.id)).to be_blank
+    end
+
+    it 'should return products belonging a given category or its descendants' do
+      expect(Product.filter_by_category_id(@root_category.id)).to eq [@product1, @product2, @product3]
+      expect(Product.filter_by_category_id(@sub_category1.id)).to eq [@product1, @product2, @product3]
+      expect(Product.filter_by_category_id(@sub_sub_category1.id)).to eq [@product1, @product2]
+      expect(Product.filter_by_category_id(@sub_category2.id)).to eq [@product3]
+    end
+  end
+
+  describe 'Product.filter_by_sub_sub_category_ids' do
+
+    it 'should return products belonging a given collection of sub_sub_category_ids arrays belonging to a single parent' do
+      expect(Product.filter_by_category_id([[@sub_sub_category1.id, @sub_sub_category2.id], [@sub_sub_category3.id]])).to be_blank
+      expect(Product.filter_by_category_id([[@sub_sub_category2.id, @sub_sub_category3.id]])).to eq [@product3]
+    end
   end
 end

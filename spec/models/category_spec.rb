@@ -85,9 +85,11 @@ RSpec.describe Category, type: :model do
 
   describe 'Category.ordered_subtree' do
     it 'should return a heirarchically ordered array of the subtree to which the category belongs' do
-      expect(Category.ordered_subtree(@root_category)).to eq [@root_category, @sub_category, @sub_sub_category]
-      expect(Category.ordered_subtree(@sub_category)).to eq [@root_category, @sub_category, @sub_sub_category]
-      expect(Category.ordered_subtree(@sub_sub_category)).to eq [@root_category, @sub_category, @sub_sub_category]
+      expected_ordered_subtree = [@root_category, @sub_category, @sub_sub_category]
+
+      expect(Category.ordered_subtree(@root_category)).to eq expected_ordered_subtree
+      expect(Category.ordered_subtree(@sub_category)).to eq expected_ordered_subtree
+      expect(Category.ordered_subtree(@sub_sub_category)).to eq expected_ordered_subtree
     end
   end
 

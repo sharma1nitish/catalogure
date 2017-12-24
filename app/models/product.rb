@@ -25,14 +25,17 @@ class Product < ApplicationRecord
   end
 
   def self.filter_by_category_id(category_id)
-    category = Category.find(category_id)
+    category = Category.find_by(id: category_id)
+
+    return [] if category.blank?
+
     product_ids = ProductsCategory.unique_product_ids_by(category_id: category.leaves.map(&:id))
 
     filter_by_ids(product_ids)
   end
 
-  def self.filter_by_sub_sub_category_ids(sub_sub_category_ids)
-    product_ids = ProductsCategory.get_product_ids_by(sub_sub_category_ids)
+  def self.filter_by_sub_sub_category_ids(sub_sub_category_ids_collection)
+    product_ids = ProductsCategory.get_product_ids_by(sub_sub_category_ids_collection)
 
     filter_by_ids(product_ids)
   end
@@ -42,6 +45,8 @@ class Product < ApplicationRecord
 
     where(id: product_ids)
   end
+
+  private
 
   def sanitize_category_ids
     self.category_ids = Category.where(id: self.category_ids).select(&:childless?).pluck(:id)
