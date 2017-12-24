@@ -27,7 +27,6 @@ RSpec.describe Product, type: :model do
       price_in_sgd: 1
     )
 
-
     @product3 = Product.create(
       categories: [@sub_sub_category2, @sub_sub_category3],
       name: 'Harry Potter and the Prisoner of Azkaban',
@@ -133,7 +132,7 @@ RSpec.describe Product, type: :model do
       expect(Product.filter_by_category_id(nil)).to be_blank
     end
 
-    it 'should return products belonging a given category or its descendants' do
+    it 'should return an empty array if given category or its descendants have no products' do
       root_category = Category.create(name: 'Clothing')
       sub_category = root_category.children.create(name: 'Material')
       sub_sub_category = sub_category.children.create(name: 'Cotton')
@@ -154,8 +153,8 @@ RSpec.describe Product, type: :model do
   describe 'Product.filter_by_sub_sub_category_ids' do
 
     it 'should return products belonging a given collection of sub_sub_category_ids arrays belonging to a single parent' do
-      expect(Product.filter_by_category_id([[@sub_sub_category1.id, @sub_sub_category2.id], [@sub_sub_category3.id]])).to be_blank
-      expect(Product.filter_by_category_id([[@sub_sub_category2.id, @sub_sub_category3.id]])).to eq [@product3]
+      expect(Product.filter_by_sub_sub_category_ids([[@sub_sub_category1.id, @sub_sub_category2.id], [@sub_sub_category3.id]])).to eq [@product3]
+      expect(Product.filter_by_sub_sub_category_ids([[@sub_sub_category1.id, @sub_sub_category2.id]])).to eq [@product1, @product2, @product3]
     end
   end
 end

@@ -54,6 +54,10 @@ group :development, :test do
   gem 'shoulda'
 end
 
+group :test do
+  gem 'database_cleaner'
+end
+
 group :production, :staging do
   gem 'rails_12factor'
 end
