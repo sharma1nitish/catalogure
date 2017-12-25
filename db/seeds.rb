@@ -66,7 +66,7 @@ inch_15 = sub_category.children.create!(name: '15 inch')
 
 # Books
 
-Product.create!(categories: [fantasy, rowling], name: 'Harry Potter anf the Prisoner of Azkaban', description: FFaker::Lorem.paragraph(sentence_count = 8), price_in_sgd: rand(1..100))
+Product.create!(categories: [fantasy, rowling], name: 'Harry Potter and the Prisoner of Azkaban', description: FFaker::Lorem.paragraph(sentence_count = 8), price_in_sgd: rand(1..100))
 Product.create!(categories: [mystery, rowling], name: "The Cuckoo's Calling", description: FFaker::Lorem.paragraph(sentence_count = 8), price_in_sgd: rand(1..100))
 Product.create!(categories: [horror, king], name: 'The Shining', description: FFaker::Lorem.paragraph(sentence_count = 8), price_in_sgd: rand(1..100))
 Product.create!(categories: [horror, mystery, king], name: 'The Mist', description: FFaker::Lorem.paragraph(sentence_count = 8), price_in_sgd: rand(1..100))
