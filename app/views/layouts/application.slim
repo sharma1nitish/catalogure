@@ -1,8 +1,8 @@
 - content_for :stylesheets do
-  = stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track' => :reload
+  = stylesheet_link_tag 'application', media: 'all'
 
 - content_for :javascripts do
-  = javascript_include_tag 'application', 'data-turbolinks-track' => 'reload'
+  = javascript_include_tag 'application'
 
 - content_for :content do
   = render 'layouts/header'
