@@ -56,12 +56,11 @@ ActiveAdmin.register Product do
 
     def update
       @product = Product.find(params[:id])
-      @product.update_attributes(@product_params)
 
-      if @product.errors.any?
-        render :edit
-      else
+      if @product.update_attributes(@product_params)
         redirect_to admin_product_path(@product)
+      else
+        render :edit
       end
     end
 
